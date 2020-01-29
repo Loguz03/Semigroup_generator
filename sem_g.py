@@ -334,12 +334,11 @@ def rg_base(n, X): # n numero de funciones, X tamaño del dominio
     while len(bass) < n:
         bass.add(tran.rg_tran(X))
     return frozenset(bass)
-    
-
+ 
 def smg_gen(base):
     smg=list(base) # es necesario que sea lista para realizar este tipo de algoritmo
     for A in smg:
-        for B in smg:
+        for B in base:
             C=tran.com(A,B)
             if C not in smg: smg.append(C)
     return semigroup(set(smg))
@@ -350,7 +349,7 @@ def smg_gen_n(base,n):
     else:
         smg=list(base)
         for A in smg:
-            for B in smg:
+            for B in base:
                 C=tran.com(A,B)
                 if C not in smg: 
                     smg.append(C)
@@ -360,7 +359,6 @@ def smg_gen_n(base,n):
             return semigroup(set(smg))
         else:
             return False
-
 
 def conmutativo_simple(base):
     for A in base:
