@@ -635,7 +635,7 @@ class CM:
                     return(S)
         
 
-CM.n_semigrupo_inverso(2,3,5)
+
 
 
 
