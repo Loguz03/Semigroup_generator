@@ -6,6 +6,7 @@ Created on Fri Jan 24 12:51:02 2020
 """
 
 import random
+from itertools import product
 
 
 
@@ -32,6 +33,11 @@ class tran:
             tr.add((i, random.choice(range(n))))
         return tran(tr)
 
+    @staticmethod
+    def TS_base(n):
+        pass
+    
+
 
 
     __cache = {}
@@ -50,8 +56,7 @@ class tran:
         self.op = dict(rule)
         self.domain = self.c_domain()
         self.image = self.c_image()
-
-        
+   
     def __lt__(self, other):  
         return self.rule < other.rule
      
@@ -78,7 +83,7 @@ class tran:
             return True
         else:
             return False
-        
+      
     
 class semigroup:
         
@@ -264,13 +269,19 @@ class semigroup:
         lista=list(self.elements)
         lista.sort()
         im = lista.index(T)
-        return str(im)
+        return im
      
     def r_e_translate(self, n):
         lista=list(self.elements)
         lista.sort() 
         return(lista[n])
     
+    def t_op(self, a, b):
+        x=self.r_e_translate(a)
+        y=self.r_e_translate(b)
+        z=tran.com(x,y)
+        return self.e_translate(z)
+
     def smg_print(self):
         elementos, operacion = self.translate()
         print("•",end='\t')
@@ -326,7 +337,23 @@ class semigroup:
         print("Grupo:", self.grupo())
                         
         print("\n#   #   #\n")
-        
+
+    def fun_printer(self):
+        for w in self.elements:
+            print(w.op)
+
+    @staticmethod
+    def TS(n):
+        list(range(n))
+        seto = [ list(range(n))]*n
+        cartesian = product(*seto)
+        elements=set()
+        for W in cartesian:
+            T=set()
+            for i in range(n):
+                T.add((i,W[i]))
+            elements.add(tran(T))
+        return semigroup(elements)
 
 def rg_base(n, X): # n numero de funciones, X tamaño del dominio
     assert n <= X**X
@@ -366,3 +393,13 @@ def conmutativo_simple(base):
             if tran.com(A, B) != tran.com(B, A):
                 return False
     return True
+
+
+
+
+
+
+
+
+
+
