@@ -19,6 +19,9 @@ class CM:
         start=time.time()
         base=rg_base(n_base,t_set)
         S=smg_gen_n(base,n)
+        while S == False:
+            base=rg_base(n_base,t_set)
+            S=smg_gen_n(base,n)
         end = time.time()
         S.printer()
         print("El calculo demoró:", end - start)
