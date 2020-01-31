@@ -6,12 +6,13 @@ Created on Fri Jan 24 12:51:02 2020
 """
 
 import random
-from itertools import product
-
+from itertools import product, combinations
+import time
 
 
 class tran:
-    
+
+     
     @staticmethod
     def f_domain(rule):
         domain=set()
@@ -28,9 +29,9 @@ class tran:
     
     @staticmethod
     def rg_tran(n):
-        tr=set()
+        tr=[]
         for i in range(n):
-            tr.add((i, random.choice(range(n))))
+            tr.append(random.choice(range(n)))
         return tran(tr)
 
     @staticmethod
@@ -38,12 +39,12 @@ class tran:
         pass
     
 
-
+    # Las transformaciones son representadas por listas de tamaño n, donde el rango n es el dominio de la transformacions y el elemento de cada posicion 
+    # es la imagen de la transformación
 
     __cache = {}
     def __new__(cls, rule): # si dos transformaciones tienen la misma regla, son almacenadas en el mismo espacio de memoria, es decir, son el mismo objeto
-        # assert tran.f_image(rule) <= tran.f_domain(rule) and len(rule) == len(tran.f_domain(rule))
-        rule=frozenset(rule)
+        rule=tuple(rule)
         if rule in tran.__cache:
             return tran.__cache[rule]
         else:
@@ -53,27 +54,28 @@ class tran:
             return o
         
     def __init__(self, rule):
-        self.op = dict(rule)
-        self.domain = self.c_domain()
-        self.image = self.c_image()
+        self.op = list(rule)
+        self.Tn = len(rule)
+        self.domain = set(range(len(rule)))
    
     def __lt__(self, other):  
         return self.rule < other.rule
      
            
-    def c_domain(self):
-        return set(self.op.keys())
+    # def c_domain(self):
+    #     return set(self.op.keys())
     
-    def c_image(self):
-        return set(self.op.values())
+    # def c_image(self):
+    #     return set(self.op.values())
 
     @classmethod   
     def com(cls, A, B):
         # assert A.domain == B.domain
-        n_rule=set()
-        for x in A.domain:
+        n_rule=[]
+        n= A.Tn
+        for x in range(n):
             y=A.op[B.op[x]]
-            n_rule.add((x,y))
+            n_rule.append(y)
         return tran(n_rule)
     
     @classmethod
@@ -83,8 +85,16 @@ class tran:
             return True
         else:
             return False
-      
-    
+         
+    @staticmethod
+    def isamagma(seto):
+        for A in seto:
+            for B in seto:
+                if tran.com(A,B) not in seto:
+                    return False
+        return True
+
+
 class semigroup:
         
     __cache = {}
@@ -108,7 +118,7 @@ class semigroup:
                 if tran.com(x,y) not in self.elements:
                     return False
         return True
-        
+     
     
     def conmutativo(self):
         for A in self.elements:
@@ -209,7 +219,6 @@ class semigroup:
             return False
         else:
             return EG
-
 
     def monoide(self):
         if self.unidad() != False:
@@ -344,16 +353,59 @@ class semigroup:
 
     @staticmethod
     def TS(n):
-        list(range(n))
+        assert n < 6
         seto = [ list(range(n))]*n
         cartesian = product(*seto)
         elements=set()
         for W in cartesian:
-            T=set()
-            for i in range(n):
-                T.add((i,W[i]))
+            T=set(enumerate(W))
             elements.add(tran(T))
         return semigroup(elements)
+
+    @staticmethod
+    def all_T(n):
+        assert n<6
+        t0 = time.time()
+        TS=semigroup.TS(n+1)
+        K=TS.elements
+        Can=combinations(K,n)
+        sgm=set()
+        for H in Can:
+            if tran.isamagma(H):
+                sgm.add(semigroup(H))
+        print(time.time() - t0)
+        return sgm
+
+
+class path_cycle:
+
+    __cache={}
+    def __new__(cls, s_cycle, c_end): 
+        rule=(tuple(s_cycle), c_end)
+        if rule in path_cycle.__cache:
+            return path_cycle.__cache[rule]
+        else:
+            o = object.__new__(cls)
+            o.rule = rule
+            path_cycle.__cache[rule] = o
+            return o
+        
+    def __init__(self, s_cycle, c_end):
+        self.s_cycle = s_cycle
+        self.c_end = c_end
+
+    def path_to_tran(self, n):
+        T = list(range(n))
+        cycle = list(self.s_cycle)
+        m = len(self.s_cycle)
+        for i in range(m-1):
+            s=cycle[i]
+            T[s]=cycle[i+1]
+        s=cycle[-1]
+        T[s]=self.c_end
+        T=set(enumerate(T))
+        return tran(T)
+
 
 def rg_base(n, X): # n numero de funciones, X tamaño del dominio
     assert n <= X**X
@@ -393,6 +445,9 @@ def conmutativo_simple(base):
             if tran.com(A, B) != tran.com(B, A):
                 return False
     return True
+
+
+
 
 
 
